@@ -6,7 +6,11 @@ import time
 import os
 import csv
 import glob
+from datetime import datetime
 
+# datetime object containing current date and time
+
+ 
 
 from pathlib import Path
 import configparser
@@ -46,7 +50,7 @@ def appendData(nodeName, sensorResponse):
             writer.writerow(header)
 
     row = []
-    row.append("Zaman")
+    row.append(datetime.now())
     for key in sensorResponse:
         row.append(sensorResponse[key])
     with open(nodeName+'/data.csv', 'a', encoding='UTF8') as f:
