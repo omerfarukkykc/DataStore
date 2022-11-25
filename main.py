@@ -35,9 +35,7 @@ if __name__ == '__main__':
             sensorList.append(serial.Serial(port))
         except:
             pass
-
-    while True:
-        for sensor in sensorList:# print data from all sensors
-            byte = sensor.readline()
-            print(byte.decode())
-        time.sleep(60)
+    for sensor in sensorList:# print data from all sensors
+        byte = sensor.readline()
+        print(byte.decode())
+    
