@@ -2,19 +2,7 @@ import serial
 import serial.tools.list_ports
 import glob
 import sys
-
-ser = serial.Serial()
-
-
-def open(port):
-    ser.port = port
-    try:
-        ser.open() 
-    except:
-        open()
-def close():
-    ser.close()
-
+import time
 
 def serial_ports():
     if sys.platform.startswith('win'):
@@ -31,23 +19,25 @@ def serial_ports():
         try:
             s = serial.Serial(port)
             s.close()
-            if "USB" in port:
-            	result.append(port)
+            if "USB" in port:# this part is for linux
+                result.append(port)
         except (OSError, serial.SerialException):
             pass
     return result
 
 
 if __name__ == '__main__':
-   
-    
+
+    sensorList = []
     ports = serial_ports()
-    print(ports)
-    
-    open(ports[0])
+    for port in ports:
+        try:
+            sensorList.append(serial.Serial(port))
+        except:
+            pass
 
     while True:
-        byte = ser.readline()
-        print(byte.decode())
-    
-    
+        for sensor in sensorList:# print data from all sensors
+            byte = sensor.readline()
+            print(byte.decode())
+        time.sleep(60)
