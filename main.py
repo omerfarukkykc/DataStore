@@ -3,6 +3,54 @@ import serial.tools.list_ports
 import glob
 import sys
 import time
+import os
+import csv
+import glob
+
+
+from pathlib import Path
+import configparser
+configPath = str(Path.home())+"/Desktop/config.ini"
+config = configparser.ConfigParser()
+config.read(configPath)
+'''
+config = configparser.ConfigParser()
+config.add_section('NODEINFO')
+config['NODEINFO']['NODENAME'] = "TryZone"
+config['NODEINFO']['SENSORSIZE'] = "5"
+with open(configPath, 'w+') as configfile:
+  config.write(configfile)
+'''
+
+
+def getNodeName():
+    return config['NODEINFO']['NODENAME']
+
+
+def getSensorSize():
+    return config['NODEINFO']['NODENAME']
+
+
+def appendData(nodeName, sensorResponse):
+    arr = os.listdir()
+    if nodeName not in arr:
+        os.mkdir(nodeName)
+    if not os.path.exists(nodeName+'/data.csv'):
+        header = ['Time']
+        for key in sensorResponse:
+            header.append(key)
+        with open(nodeName+'/data.csv', 'w', encoding='UTF8') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+
+    row = []
+    row.append("Zaman")
+    for key in sensorResponse:
+        row.append(sensorResponse[key])
+    with open(nodeName+'/data.csv', 'w', encoding='UTF8') as f:
+        writer = csv.writer(f)
+        writer.writerow(row)
+
 
 def serial_ports():
     if sys.platform.startswith('win'):
@@ -19,7 +67,7 @@ def serial_ports():
         try:
             s = serial.Serial(port)
             s.close()
-            if "USB" in port:# this part is for linux
+            if "USB" in port:  # this part is for linux
                 result.append(port)
         except (OSError, serial.SerialException):
             pass
@@ -27,15 +75,18 @@ def serial_ports():
 
 
 if __name__ == '__main__':
-
     sensorList = []
     ports = serial_ports()
     for port in ports:
         try:
-            sensorList.append(serial.Serial(port))
+            portcon = serial.Serial(port)
+            portcon.timeout = 10
+            sensorList.append(portcon)
         except:
             pass
-    for sensor in sensorList:# print data from all sensors
+    sensorResponse = {}
+    for sensor in sensorList:  # print data from all sensors
         byte = sensor.readline()
-        print(byte.decode())
-    
+        sensorResponse[sensor.name] = byte.decode()
+    nodeName = getNodeName()
+    appendData(nodeName, sensorResponse)
