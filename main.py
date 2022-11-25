@@ -35,7 +35,9 @@ def appendData(nodeName, sensorResponse):
     arr = os.listdir()
     if nodeName not in arr:
         os.mkdir(nodeName)
+    
     if not os.path.exists(nodeName+'/data.csv'):
+        print("hey")
         header = ['Time']
         for key in sensorResponse:
             header.append(key)
@@ -47,7 +49,7 @@ def appendData(nodeName, sensorResponse):
     row.append("Zaman")
     for key in sensorResponse:
         row.append(sensorResponse[key])
-    with open(nodeName+'/data.csv', 'w', encoding='UTF8') as f:
+    with open(nodeName+'/data.csv', 'a', encoding='UTF8') as f:
         writer = csv.writer(f)
         writer.writerow(row)
 
@@ -87,6 +89,6 @@ if __name__ == '__main__':
     sensorResponse = {}
     for sensor in sensorList:  # print data from all sensors
         byte = sensor.readline()
-        sensorResponse[sensor.name] = byte.decode()
+        sensorResponse[sensor.name] = byte.decode().replace("\n", "").replace("\r","")
     nodeName = getNodeName()
     appendData(nodeName, sensorResponse)
